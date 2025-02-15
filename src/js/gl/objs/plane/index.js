@@ -16,6 +16,7 @@ export class Plane {
   setup() {
     this.setParam();
     this.createMesh();
+    this.setCameraDir();
     this.setMesh();
     this.setGUI();
   }
@@ -53,13 +54,20 @@ export class Plane {
         uCameraPos: {
           value: this.cameraInstance.position,
         },
-        uAmp: { value: 50.0 },
-        uFreq: { value: 0.05 },
+
         uVecA: { value: new Vector3(0, 0, 0) },
+        uCameraDir: { value: new Vector3(0, 0, 0) },
       },
     });
 
     this.mesh = new Mesh(g, this.m);
+  }
+
+  setCameraDir() {
+    const v = new Vector3();
+    // getWorldDirection：ワールド空間におけるオブジェクトの正の Z 軸の方向を表すベクトルを返す
+    const dir = this.cameraInstance.getWorldDirection(v);
+    this.m.uniforms.uCameraDir.value = dir;
   }
 
   setMesh() {

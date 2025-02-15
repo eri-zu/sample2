@@ -12,15 +12,12 @@ uniform float uTime;
 uniform vec2 uResolution;
 uniform vec3 uCameraPos; // カメラのワールド座標
 uniform vec3 uVecA; // カメラからカーソルに向かって伸びるベクトルを正規化したもの（A）
-uniform float uAmp;
-uniform float uFreq;
+uniform vec3 uCameraDir; // 視線ベクトル
 
 varying vec2 vUv;
-// varying float vCloseness;
-varying vec3 vDirection;
 varying vec3 vToMouse;
 
-
+float power = 20.0;
 
 void main() {
 
@@ -34,7 +31,7 @@ void main() {
   vec4 modelPosition = modelMatrix * vec4(p, 1.0);
 
   // 視線ベクトル：カメラから板ポリに向かうベクトル（E）
-  vec3 eyeVec = normalize(vec3(0.0, 0.0, p.x) - uCameraPos);
+  vec3 eyeVec = uCameraDir;
 
   // カメラから頂点に向かって伸びるベクトルを正規化したもの（B）
   vec3 vecB = normalize(modelPosition.xyz - uCameraPos);
@@ -59,14 +56,10 @@ void main() {
   // // 内積でマウスと頂点の近接レベルを求める（-1〜1）
   float closeness = dot(uVecA, vecB);
   closeness = smoothstep(0.99, 0.99999, closeness);
-  // 近接してる頂点だけマウスの方向に向かって動かす
-  float power = 10.0;
-
-  // modelPosition.x += power * closeness;
-  // modelPosition.y += power * closeness;
-  // modelPosition.x += 10.0 * closeness * toMouse.x;
-  // modelPosition.y += 10.0 * closeness * toMouse.y;
-
+  // 近接距離に応じて頂点を動かす
+  
+  vec2 offset = toMouse.xy * power * (1.0 - closeness);
+  modelPosition.xy += offset;
 
 
   // ------------------------------------------------------------
@@ -78,6 +71,4 @@ void main() {
   gl_Position = projectPosition; // クリップ座標
 
   vUv = uv;
-  // vCloseness = closeness;
-  vToMouse = toMouse;
 }
